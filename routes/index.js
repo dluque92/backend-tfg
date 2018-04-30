@@ -8,7 +8,7 @@ router.get('/', function (req, res) {
 })
 
 // About page route.
-router.get('/llamada', function (req, res) {
+router.post('/llamada', function (req, res) {
     var country = req.params.country;
     var values = req.params.values;
       id = llamadaLibro(country,values);
