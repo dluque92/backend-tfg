@@ -39,7 +39,7 @@ app.use(function(err, req, res, next) {
 });
 
 app.listen(8000, function(){
-  console.log("Example at port 21");
+  console.log("Example at port 3000");
 });
 
 module.exports = app;
