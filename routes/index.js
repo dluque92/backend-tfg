@@ -16,7 +16,7 @@ router.post('/llamada', function (req, res) {
       interval = setInterval(segundaLlamada(id), 1000);
       while(interval!=0){}
       products = terceraLlamada(id);
-      res.json(products);
+      res.send(JSON.stringify(products));
 })
 
 function llamadaLibro(country,values){
