@@ -38,8 +38,8 @@ app.use(function(err, req, res, next) {
   res.render('error');
 });
 
-app.listen(8080, function(){
-  console.log("Example at port 3000");
+app.listen(12345, function(){
+  console.log("Example at port 12345");
 });
 
 module.exports = app;
