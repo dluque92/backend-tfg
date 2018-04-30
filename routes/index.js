@@ -26,6 +26,13 @@ router.post("/llamada", async function (req, res) {
         segundallamadaId = await segundaLlamada(id);
       }
       return terceraLlamada(id);
+    }),
+    llamadaLibro(country, values, "amazon").then(async id => {
+      let segundallamadaId = "unfinished";
+      while (segundallamadaId !== "finished") {
+        segundallamadaId = await segundaLlamada(id);
+      }
+      return terceraLlamada(id);
     })
   ]);
 
