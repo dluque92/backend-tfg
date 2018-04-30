@@ -3,32 +3,43 @@ var router = express.Router();
 var token = "NRHQYEFAWRIPPVOPDCOIHJABAMTHFRBFTGJNHHQYTAAZUTZBCMQKDCIXXYNVOPOC";
 var axios = require("axios");
 // Home page route.
-router.get("/", function(req, res) {
+router.get("/", function (req, res) {
   res.send("This is the home page");
 });
 
 // About page route.
-router.post("/llamada", async function(req, res) {
+router.post("/llamada", async function (req, res) {
   var country = req.query.country;
   var values = req.query.values;
-  let id = await llamadaLibro(country, values);
+  let productsRes = await Promise.all([
+    llamadaLibro(country, values, "ebay").then(async id => {
+      let segundallamadaId = "unfinished";
+      while (segundallamadaId !== "finished") {
+        segundallamadaId = await segundaLlamada(id);
+      }
 
-  var segundallamadaId = "unfinished";
-  console.log("About to petar");
-  while (segundallamadaId !== "finished") {
-    segundallamadaId = await segundaLlamada(id);
-  }
-  products = await terceraLlamada(id);
-  res.send(JSON.stringify(products));
+      return terceraLlamada(id);
+    }),
+    llamadaLibro(country, values, "google-shopping").then(async id => {
+      let segundallamadaId = "unfinished";
+      while (segundallamadaId !== "finished") {
+        segundallamadaId = await segundaLlamada(id);
+      }
+      return terceraLlamada(id);
+    })
+  ]);
+
+  console.log(productsRes);
+  res.send(JSON.stringify(productsRes));
 });
 
-function llamadaLibro(country, values) {
+function llamadaLibro(country, values, source) {
   console.log("Primera llamada");
   return axios
     .post("https://api.priceapi.com/jobs", {
       token: token,
       country: country,
-      source: "ebay",
+      source: source,
       currentness: "daily_updated",
       completeness: "one_page",
       key: "gtin",
