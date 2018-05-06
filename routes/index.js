@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var token = "NRHQYEFAWRIPPVOPDCOIHJABAMTHFRBFTGJNHHQYTAAZUTZBCMQKDCIXXYNVOPOC";
 var axios = require("axios");
+
 // Home page route.
 router.get("/", function (req, res) {
   res.send("This is the home page");
@@ -11,34 +12,66 @@ router.get("/", function (req, res) {
 router.post("/llamada", async function (req, res) {
   var country = req.query.country;
   var values = req.query.values;
-  let productsRes = await Promise.all([
-    llamadaLibro(country, values, "ebay").then(async id => {
-      let segundallamadaId = "unfinished";
-      while (segundallamadaId !== "finished") {
-        segundallamadaId = await segundaLlamada(id);
-      }
-
-      return terceraLlamada(id);
-    }),
+  Promise.all([
+    // llamadaLibro(country, values, "ebay").then(async id => {
+    //   try{
+    //     var statusId = 'working';
+    //     while(statusId != 'finished'){
+    //       var [parents] = await Promise.all([
+    //         statusId = await segundaLlamada(id, "1"),
+    //         sleep(5000)
+    //       ]);
+    //       console.log("ESTADO 1 " + statusId);
+    //       //statusId = await segundaLlamada(id, "2");
+    //       //demo();
+    //     }
+    //     return terceraLlamada(id);
+    //   }catch(error){
+    //     console.log(error)
+    //   }
+    // }),
     llamadaLibro(country, values, "google-shopping").then(async id => {
-      let segundallamadaId = "unfinished";
-      while (segundallamadaId !== "finished") {
-        segundallamadaId = await segundaLlamada(id);
+      try{
+          var statusId = 'working';
+          while(statusId != 'finished'){
+            var [parents] = await Promise.all([
+              statusId = await segundaLlamada(id, "2"),
+              sleep(5000)
+            ]);
+            console.log("ESTADO 2 " + statusId);
+          }
+          return terceraLlamada(id);
+      }catch(error){
+        console.log(error)
       }
-      return terceraLlamada(id);
     }),
     llamadaLibro(country, values, "amazon").then(async id => {
-      let segundallamadaId = "unfinished";
-      while (segundallamadaId !== "finished") {
-        segundallamadaId = await segundaLlamada(id);
+      try{
+        var statusId = 'working';
+        while(statusId != 'finished'){
+          var [parents] = await Promise.all([
+            statusId = await segundaLlamada(id, "3"),
+            sleep(5000)
+          ]);
+          console.log("ESTADO 3 " + statusId);
+        }
+        return terceraLlamada(id);
+      }catch(error){
+        console.log(error)
       }
-      return terceraLlamada(id);
     })
-  ]);
-
-  console.log(productsRes);
-  res.send(JSON.stringify(productsRes));
+  ]).then(result =>{
+    console.log("<------------ HA TERMINADO ------------>")
+    console.log(result);
+    res.send(JSON.stringify(result));
+  }).catch(reason => { 
+    console.log(reason)
+  });
 });
+
+function sleep(ms) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
 
 function llamadaLibro(country, values, source) {
   console.log("Primera llamada");
@@ -54,11 +87,14 @@ function llamadaLibro(country, values, source) {
     })
     .then(res => {
       return res.data.job_id;
+    })
+    .catch(e => {
+      console.log(e)
     });
 }
 
-function segundaLlamada(job_id) {
-  console.log("Segunda llamada");
+function segundaLlamada(job_id, num) {
+  console.log("Segunda llamada" + num);
   return axios
     .get("https://api.priceapi.com/jobs/" + job_id, {
       params: {
@@ -66,7 +102,11 @@ function segundaLlamada(job_id) {
       }
     })
     .then(res => {
+      console.log(res.data.status)
       return res.data.status;
+    })
+    .catch(e => {
+      console.log(e)
     });
 }
 
@@ -80,6 +120,9 @@ function terceraLlamada(job_id) {
     })
     .then(res => {
       return res.data;
+    })
+    .catch(e => {
+      console.log(e)
     });
 }
 
